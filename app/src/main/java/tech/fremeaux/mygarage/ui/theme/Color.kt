@@ -6,8 +6,9 @@ val LightGray = Color(0xFF6B7280)
 val LightGray2 = Color(0xFF64748B)
 
 val Blue = Color(0xFF1A56DB)
-val Dark = Color(0xFF111827)
-val LightDark = Color(0xFF111827)
+val NeonBlue = Color(0xFF22D3EE)
+val Dark = Color(0xFF070D14)
+val LightDark = Color(0xFF112234)
 val White = Color(0xFFFFFFFF)
 
 val DarkWhite = Color(0xFFF5F6FA)

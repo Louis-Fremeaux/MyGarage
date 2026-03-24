@@ -11,23 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.layout.LazyLayout
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DirectionsCar
-import androidx.compose.material.icons.filled.Garage
-import androidx.compose.material.icons.filled.MenuBook
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
@@ -37,22 +29,19 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import tech.fremeaux.mygarage.AppDestinations
 import tech.fremeaux.mygarage.data.api.ApiService
 import tech.fremeaux.mygarage.data.model.Car
 import tech.fremeaux.mygarage.data.model.Make
@@ -76,7 +65,9 @@ fun CatalogScreen(){
 
     var model by remember { mutableStateOf<List<Model>>(emptyList()) }
     var selectedModel: Model? by remember {mutableStateOf(null)}
-    var car by remember { mutableStateOf<String>("") }
+
+    val carRepo = CarRepository(LocalContext.current)
+    var car by remember { mutableStateOf<Car?>(null) }
 
 
     Column (Modifier.padding(20.dp,30.dp,20.dp,0.dp)){
@@ -94,13 +85,7 @@ fun CatalogScreen(){
                     loading = false
                 }
 
-                Text(makes.size.toString()+" Models", color = MaterialTheme.colorScheme.tertiary)
-
-
-                /*val repo = CarRepository(LocalContext.current)
-                Button(onClick = { repo.addCar("BMW", "335i xdrive", 306, color.random().value.toLong()) }) {
-                    Text("Ajouter")
-                }*/
+                Text(makes.size.toString()+" Marques ·  via CarApi", color = MaterialTheme.colorScheme.tertiary)
 
                 if (makes.isEmpty() and loading) {
                     Box(Modifier.fillMaxSize(), Alignment.Center){
@@ -146,10 +131,14 @@ fun CatalogScreen(){
                                     modifier = Modifier.fillMaxSize(),
                                     contentAlignment = Alignment.Center
                                 ) {
-                                    Text(
+                                    AsyncImage(
+                                        model = "https://github.com/filippofilip95/car-logos-dataset/blob/master/logos/optimized/${item.name.lowercase().replace(" ","-")}.png?raw=true",
+                                        contentDescription = item.name
+                                    )
+                                    /*Text(
                                         text = item.name,
                                         style = MaterialTheme.typography.bodyLarge
-                                    )
+                                    )*/
                                 }
                             }
                         }
@@ -164,10 +153,17 @@ fun CatalogScreen(){
                     model = withContext(Dispatchers.IO) { parseModels(ApiService().get("https://carapi.app/api/models/v2?make=${selectedMake?.name}")) }
                     loading = false
                 }
-                Button(onClick = { currentCatalogue = CataloguePage.MAKES; model=emptyList() }) {
-                    Text("←")
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Button(
+                        modifier = Modifier.size(40.dp),
+                        onClick = { currentCatalogue = CataloguePage.MAKES; model=emptyList() },
+                        colors = ButtonDefaults.elevatedButtonColors(containerColor = MaterialTheme.colorScheme.background, contentColor = MaterialTheme.colorScheme.secondary),
+                        shape = RoundedCornerShape(16.dp)
+                    )
+                    { Text("←", color = MaterialTheme.colorScheme.secondary) }
+
+                    Text(" Marque : ${selectedMake?.name}", color = MaterialTheme.colorScheme.tertiary)
                 }
-                Text(" Marque : ${selectedMake?.name}", color = MaterialTheme.colorScheme.tertiary)
 
                 if (model.isEmpty() and loading) {
                     Box(Modifier.fillMaxSize(), Alignment.Center){
@@ -181,7 +177,7 @@ fun CatalogScreen(){
                     Box(Modifier.fillMaxSize(), Alignment.Center){
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.SignalWifiConnectedNoInternet4, "", Modifier.size(80.dp))
-                            Text("Pas de connexion....")
+                            Text("Pas de model....")
                         }
                     }
                 }else {
@@ -228,39 +224,48 @@ fun CatalogScreen(){
             CataloguePage.CAR->{
                 loading=true
                 LaunchedEffect(Unit) {
-                    car = withContext(Dispatchers.IO) { ApiService().get("https://carapi.app/api/engines/v2?make=${selectedMake?.name}&model=${selectedModel?.name}") }
+                    car = withContext(Dispatchers.IO) { carRepo.parseCar(ApiService().get("https://carapi.app/api/engines/v2?limit=1&make=${selectedMake?.name}&model=${selectedModel?.name}")) }
                     loading = false
                 }
-                Button(onClick = { currentCatalogue = CataloguePage.MAKES; model=emptyList() }) {
+                Button(
+                    onClick = { currentCatalogue = CataloguePage.MODELS; car=null },
+                    colors = ButtonColors(Color(0,0,0,0),Color.Black,Color.Black,Color.Black,)
+                ) {
                     Text("←")
                 }
                 Text(" Marque : ${selectedMake?.name}", color = MaterialTheme.colorScheme.tertiary)
                 Text(" Model : ${selectedModel?.name}", color = MaterialTheme.colorScheme.tertiary)
 
-                if (model.isEmpty() and loading) {
+                if (car== null) {
                     Box(Modifier.fillMaxSize(), Alignment.Center){
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Chargement...")
                             CircularProgressIndicator()
                         }
                     }
-                }
-                if(model.isEmpty()){
-                    Box(Modifier.fillMaxSize(), Alignment.Center){
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.SignalWifiConnectedNoInternet4, "", Modifier.size(80.dp))
-                            Text("Pas de connexion....")
-                        }
-                    }
+                    /*}
+                    if(car.isEmpty()){
+                        Box(Modifier.fillMaxSize(), Alignment.Center){
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Icon(Icons.Default.SignalWifiConnectedNoInternet4, "", Modifier.size(80.dp))
+                                Text("Pas de connexion....")
+                            }
+                        }*/
                 }else {
-                    Text(car)
-                    LazyVerticalGrid(
+                    val repo = CarRepository(LocalContext.current)
+                    Button(onClick = { repo.addCar(car!!.make, car!!.model, car!!.hp, color.random().value.toLong()) }) {
+                        Text("Ajouter")
+                    }
+
+
+                    /*LazyVerticalGrid(
                         columns = GridCells.Adaptive(minSize = 128.dp),
                         contentPadding = PaddingValues(8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        /*items(car) { item ->
+
+                        items(car) { item ->
                             ElevatedCard(
                                 onClick = {
                                     //selectedMake = item
@@ -288,8 +293,8 @@ fun CatalogScreen(){
                                     )
                                 }
                             }
-                        }*/
-                    }
+                        }
+                    }*/
                 }
             }
         }

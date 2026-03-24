@@ -2,6 +2,7 @@ package tech.fremeaux.mygarage.data.repo
 
 import android.content.ContentValues
 import android.content.Context
+import org.json.JSONArray
 import org.json.JSONObject
 import tech.fremeaux.mygarage.data.DataBase
 import tech.fremeaux.mygarage.data.MakeTableName
@@ -21,7 +22,7 @@ class MakeRepository(context: Context) {
 
                 val make = Make(id = obj.getInt("id"), name = obj.getString("name"))
                 list.add(make)
-                addMake(obj.getString("name"))
+                //addMake(obj.getString("name"))
             }
             return list
         }else{

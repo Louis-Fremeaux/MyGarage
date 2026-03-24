@@ -2,32 +2,33 @@ package tech.fremeaux.mygarage.data.repo
 
 import android.content.ContentValues
 import android.content.Context
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toColorLong
 import org.json.JSONObject
 import tech.fremeaux.mygarage.data.CarTableName
 import tech.fremeaux.mygarage.data.DataBase
 import tech.fremeaux.mygarage.data.model.Car
 import tech.fremeaux.mygarage.data.model.Model
 
-fun parseModels(json: String): List<Car> {
-    if (!json.isEmpty()){
-        val list = mutableListOf<Car>()
-        val jsonArray = JSONObject(json).getJSONArray("data")
-
-        for (i in 0 until jsonArray.length()) {
-            val obj = jsonArray.getJSONObject(i)
-
-            val car = Car(id = obj.getInt("id"), make = obj.getString("make"),model = obj.getString("model"), hp = obj.getInt("hp"), color = obj.getLong("color"))
-            list.add(car)
-            //addMake(obj.getString("name"))    AndStore pour le nom de la fonction
-        }
-        return list
-    }else{
-        return emptyList()
-    }
-}
-
 class CarRepository(context: Context) {
     private val dbHelper = DataBase(context)
+
+    fun parseCar(json: String): Car? {
+        if (!json.isEmpty()){
+            val list = mutableListOf<Car>()
+            val jsonArray = JSONObject(json).getJSONArray("data")
+
+            for (i in 0 until jsonArray.length()) {
+                val obj = jsonArray.getJSONObject(i)
+
+                val car = Car(id = obj.getInt("id"), make = obj.getString("make"),model = obj.getString("model"), hp = obj.getInt("horsepower_hp"), color = Color(255,255,255).toColorLong())
+                list.add(car)
+            }
+            return list.first()
+        }else{
+            return null
+        }
+    }
 
     fun addCar(make:String, model:String, hp:Int, color:Long) {
         val db = dbHelper.writableDatabase
