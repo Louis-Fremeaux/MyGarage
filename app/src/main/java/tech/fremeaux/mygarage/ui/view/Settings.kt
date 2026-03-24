@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsScreen(){
-    Column (Modifier.padding(20.dp,30.dp)){
+    Column (Modifier.padding(20.dp,30.dp,20.dp,0.dp)){
         Text("Welcome in your settings")
     }
 }

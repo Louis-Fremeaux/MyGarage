@@ -2,28 +2,50 @@ package tech.fremeaux.mygarage.data.repo
 
 import android.content.ContentValues
 import android.content.Context
+import org.json.JSONObject
+import tech.fremeaux.mygarage.data.CarTableName
 import tech.fremeaux.mygarage.data.DataBase
 import tech.fremeaux.mygarage.data.model.Car
+import tech.fremeaux.mygarage.data.model.Model
+
+fun parseModels(json: String): List<Car> {
+    if (!json.isEmpty()){
+        val list = mutableListOf<Car>()
+        val jsonArray = JSONObject(json).getJSONArray("data")
+
+        for (i in 0 until jsonArray.length()) {
+            val obj = jsonArray.getJSONObject(i)
+
+            val car = Car(id = obj.getInt("id"), make = obj.getString("make"),model = obj.getString("model"), hp = obj.getInt("hp"), color = obj.getLong("color"))
+            list.add(car)
+            //addMake(obj.getString("name"))    AndStore pour le nom de la fonction
+        }
+        return list
+    }else{
+        return emptyList()
+    }
+}
 
 class CarRepository(context: Context) {
-
     private val dbHelper = DataBase(context)
 
-    fun addCar(make: String, model: String) {
+    fun addCar(make:String, model:String, hp:Int, color:Long) {
         val db = dbHelper.writableDatabase
 
         val values = ContentValues().apply {
             put("make", make)
             put("model", model)
+            put("hp", hp)
+            put("color", color)
         }
 
-        db.insert("cars", null, values)
+        db.insert(CarTableName, null, values)
         db.close()
     }
 
     fun getCars(): List<Car> {
         val db = dbHelper.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM cars", null)
+        val cursor = db.rawQuery("SELECT * FROM $CarTableName", null)
 
         val cars = mutableListOf<Car>()
 
@@ -31,8 +53,10 @@ class CarRepository(context: Context) {
             val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
             val make = cursor.getString(cursor.getColumnIndexOrThrow("make"))
             val model = cursor.getString(cursor.getColumnIndexOrThrow("model"))
+            val hp = cursor.getInt(cursor.getColumnIndexOrThrow("hp"))
+            val color = cursor.getLong(cursor.getColumnIndexOrThrow("color"))
 
-            cars.add(Car(id, make, model))
+            cars.add(Car(id, make, model, hp, color))
         }
 
         cursor.close()
@@ -41,20 +65,22 @@ class CarRepository(context: Context) {
         return cars
     }
 
-    fun updateCar(id:Int, name: String, details: String, priority: String){
+    fun updateCar(id:Int, make:String, model:String, hp:Int, color:Long){
         val db = dbHelper.readableDatabase
         val values = ContentValues().apply {
-            put("make", name)
-            put("model", details)
+            put("make", make)
+            put("model", model)
+            put("hp", hp)
+            put("color", color)
         }
 
-        db.update("cars", values, "id = ?", arrayOf(id.toString()))
+        db.update(CarTableName, values, "id = ?", arrayOf(id.toString()))
         db.close()
     }
 
     fun deleteCar(id: Int) {
         val db = dbHelper.writableDatabase
-        db.delete("cars", "id = ?", arrayOf(id.toString()))
+        db.delete(CarTableName, "id = ?", arrayOf(id.toString()))
         db.close()
     }
 }
