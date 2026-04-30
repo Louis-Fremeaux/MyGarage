@@ -21,7 +21,18 @@ class CarRepository(context: Context) {
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
 
-                val car = Car(id = obj.getInt("id"), make = obj.getString("make"),model = obj.getString("model"), hp = obj.getInt("horsepower_hp"), color = Color(255,255,255).toColorLong())
+                val car = Car(
+                    id = obj.getInt("id"),
+                    make = obj.getString("make"),
+                    model = obj.getString("model"),
+                    hp = obj.getInt("horsepower_hp"),
+                    nm= obj.getInt("torque_ft_lbs"),
+                    color = Color(255,255,255).toColorLong(),
+                    year = obj.getString("year"),
+                    fuel= obj.getString("fuel_type"),
+                    drive= obj.getString("drive_type"),
+                    transmission=obj.getString("transmission")
+                    )
                 list.add(car)
             }
             return list.first()
@@ -30,14 +41,19 @@ class CarRepository(context: Context) {
         }
     }
 
-    fun addCar(make:String, model:String, hp:Int, color:Long) {
+    fun addCar(make:String, model:String, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String) {
         val db = dbHelper.writableDatabase
 
         val values = ContentValues().apply {
             put("make", make)
             put("model", model)
             put("hp", hp)
+            put("nm", nm)
             put("color", color)
+            put("year", year)
+            put("fuel", fuel)
+            put("drive", drive)
+            put("transmission", transmission)
         }
 
         db.insert(CarTableName, null, values)
@@ -55,9 +71,14 @@ class CarRepository(context: Context) {
             val make = cursor.getString(cursor.getColumnIndexOrThrow("make"))
             val model = cursor.getString(cursor.getColumnIndexOrThrow("model"))
             val hp = cursor.getInt(cursor.getColumnIndexOrThrow("hp"))
+            val nm = cursor.getInt(cursor.getColumnIndexOrThrow("nm"))
             val color = cursor.getLong(cursor.getColumnIndexOrThrow("color"))
+            val year = cursor.getString(cursor.getColumnIndexOrThrow("year"))
+            val fuel = cursor.getString(cursor.getColumnIndexOrThrow("fuel"))
+            val drive = cursor.getString(cursor.getColumnIndexOrThrow("drive"))
+            val transmission = cursor.getString(cursor.getColumnIndexOrThrow("transmission"))
 
-            cars.add(Car(id, make, model, hp, color))
+            cars.add(Car(id, make, model, hp, nm, color, year, fuel, drive, transmission))
         }
 
         cursor.close()

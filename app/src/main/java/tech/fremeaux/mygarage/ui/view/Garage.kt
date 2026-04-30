@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,6 +23,7 @@ import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismissBox
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
@@ -47,7 +47,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import tech.fremeaux.mygarage.data.model.Car
 import tech.fremeaux.mygarage.data.repo.CarRepository
+import tech.fremeaux.mygarage.ui.dialog.CarDetailDialog
 import tech.fremeaux.mygarage.ui.theme.Gold
 import tech.fremeaux.mygarage.ui.theme.LightBlue
 import tech.fremeaux.mygarage.ui.theme.LightGold
@@ -62,8 +64,10 @@ fun GarageScreen(){
     val repo = CarRepository(LocalContext.current)
     var cars by remember { mutableStateOf(repo.getCars()) }
 
+    var selectedCarForDetail by remember { mutableStateOf<Car?>(null) }
 
-    Column (Modifier.padding(20.dp,30.dp,20.dp,0.dp)){
+
+    Column (Modifier.padding(20.dp,35.dp,20.dp,0.dp)){
         Text(
             text = buildAnnotatedString {
                 withStyle(SpanStyle(color = MaterialTheme.colorScheme.onBackground)) {
@@ -75,7 +79,7 @@ fun GarageScreen(){
             },
             style = MaterialTheme.typography.displayLarge
         )
-        Text(cars.size.toString()+" véhicule(s)",color = MaterialTheme.colorScheme.tertiary)
+        Text(cars.size.toString()+" véhicule(s)",color = MaterialTheme.colorScheme.tertiary, modifier = Modifier.padding(bottom = 10.dp))
 
         if (cars.isEmpty()){
             Box(Modifier.fillMaxSize(), Alignment.Center){
@@ -139,47 +143,70 @@ fun GarageScreen(){
                             }
                         }
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 5.dp)
-                                .shadow(8.dp, shape = RoundedCornerShape(10.dp))
-                                .background(
-                                    color = MaterialTheme.colorScheme.surface,
-                                    shape = RoundedCornerShape(10.dp)
-                                )
-                        ) {
-                            Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min))
-                            {
-                                Box(Modifier.fillMaxHeight().aspectRatio(1f)
-                                    .background(Color(item.color.toULong())),
-                                    contentAlignment = Alignment.Center
-                                ){
-                                    Text(emoji.random(), fontSize = 32.sp)
-                                }
-                                Column(Modifier.padding(start = 5.dp).padding(10.dp)) {
-                                    Text(item.make, color = MaterialTheme.colorScheme.tertiary)
-                                    Text(item.model, color = MaterialTheme.colorScheme.secondary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight(800))
-                                    Text(
-                                        buildAnnotatedString {
-                                            withStyle(SpanStyle(Gold, )) {
-                                                append(item.hp.toString())
-                                            }
-                                            withStyle(SpanStyle(MaterialTheme.colorScheme.tertiary)) {
-                                                append(" ch")
-                                            }
-                                        }, color = Gold, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight(800))
+                        Surface(modifier=Modifier.background(Color(0,0,0,0)).padding(vertical = 10.dp).shadow(8.dp, shape = RoundedCornerShape(10.dp)), onClick = { selectedCarForDetail = item }) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .shadow(0.dp, shape = RoundedCornerShape(10.dp))
+                                    .background(
+                                        color = MaterialTheme.colorScheme.surface,
+                                        shape = RoundedCornerShape(10.dp)
+                                    )
+                            ) {
+                                Row(Modifier.fillMaxWidth().height(IntrinsicSize.Min))
+                                {
+                                    Box(Modifier.fillMaxHeight().aspectRatio(1f)
+                                        .background(Color(item.color.toULong())),
+                                        contentAlignment = Alignment.Center
+                                    ){
+                                        Text(emoji.random(), fontSize = 32.sp)
+                                    }
+                                    Column(Modifier.padding(start = 5.dp).padding(10.dp)) {
+                                        Text(item.make, color = MaterialTheme.colorScheme.tertiary)
+                                        Text(item.model, color = MaterialTheme.colorScheme.secondary, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight(800))
+                                        Row(Modifier.fillMaxWidth()) {
+                                            Text(
+                                                buildAnnotatedString {
+                                                    withStyle(SpanStyle(Gold, )) {
+                                                        append(item.hp.toString())
+                                                    }
+                                                    withStyle(SpanStyle(MaterialTheme.colorScheme.tertiary)) {
+                                                        append(" ch")
+                                                    }
+                                                },
+                                                color = Gold,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight(800),
+                                                modifier = Modifier.padding(end = 15.dp)
+                                            )
+                                            Text(
+                                                buildAnnotatedString {
+                                                    withStyle(SpanStyle(Gold )) {
+                                                        append(item.nm.toString())
+                                                    }
+                                                    withStyle(SpanStyle(MaterialTheme.colorScheme.tertiary)) {
+                                                        append(" nm")
+                                                    }
+                                                },
+                                                color = Gold,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                fontWeight = FontWeight(800)
+                                            )
+                                        }
+
+                                    }
                                 }
                             }
                         }
                     }
                 }
                 item {
-                    Row(Modifier.fillMaxWidth(),horizontalArrangement = Arrangement.Center) {
-                        Text("← Swipe pour supprimer", color = MaterialTheme.colorScheme.tertiary)
+                    Row(Modifier.fillMaxWidth().padding(top = 10.dp),horizontalArrangement = Arrangement.Center) {
+                        Text("← Swipe pour supprimer", color = MaterialTheme.colorScheme.tertiary, style = MaterialTheme.typography.bodyMedium)
                     }
                 }
             }
         }
     }
+    selectedCarForDetail?.let { car -> CarDetailDialog(car = car, onDismiss = { selectedCarForDetail = null }) }
 }
