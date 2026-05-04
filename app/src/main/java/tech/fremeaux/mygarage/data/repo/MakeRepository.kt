@@ -2,7 +2,6 @@ package tech.fremeaux.mygarage.data.repo
 
 import android.content.ContentValues
 import android.content.Context
-import org.json.JSONArray
 import org.json.JSONObject
 import tech.fremeaux.mygarage.data.DataBase
 import tech.fremeaux.mygarage.data.MakeTableName
@@ -22,7 +21,7 @@ class MakeRepository(context: Context) {
 
                 val make = Make(id = obj.getInt("id"), name = obj.getString("name"))
                 list.add(make)
-                //addMake(obj.getString("name"))
+                addMake(obj.getInt("id"),obj.getString("name"))
             }
             return list
         }else{
@@ -32,7 +31,7 @@ class MakeRepository(context: Context) {
     fun getMakes(): List<Make> {
 
         val db = db.readableDatabase
-        val cursor = db.rawQuery("SELECT * FROM $MakeTableName", null)
+        val cursor = db.rawQuery("SELECT * FROM $MakeTableName order by name", null)
         val makes = mutableListOf<Make>()
 
 
@@ -53,10 +52,11 @@ class MakeRepository(context: Context) {
         }
     }
 
-    fun addMake(name: String) {
+    fun addMake(id:Int, name: String) {
         val db = db.writableDatabase
 
         val values = ContentValues().apply {
+            put("id", id)
             put("name", name)
         }
 

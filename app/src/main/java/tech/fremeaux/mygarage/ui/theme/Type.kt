@@ -8,7 +8,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import tech.fremeaux.mygarage.R
 
-// Set of Material typography styles to start with
 val Rajdhani = FontFamily(
     Font(R.font.rajdhani_bold,     FontWeight.Bold),
     Font(R.font.rajdhani_semibold, FontWeight.SemiBold),

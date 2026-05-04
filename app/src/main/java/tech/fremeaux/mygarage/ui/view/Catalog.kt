@@ -1,6 +1,5 @@
 package tech.fremeaux.mygarage.ui.view
 
-import android.widget.ProgressBar
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NoTransfer
 import androidx.compose.material.icons.filled.SignalWifiConnectedNoInternet4
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
@@ -50,9 +50,9 @@ import tech.fremeaux.mygarage.data.api.ApiService
 import tech.fremeaux.mygarage.data.model.Car
 import tech.fremeaux.mygarage.data.model.Make
 import tech.fremeaux.mygarage.data.model.Model
-import tech.fremeaux.mygarage.data.model.parseModels
 import tech.fremeaux.mygarage.data.repo.CarRepository
 import tech.fremeaux.mygarage.data.repo.MakeRepository
+import tech.fremeaux.mygarage.data.repo.ModelRepository
 import tech.fremeaux.mygarage.ui.theme.Blue
 import tech.fremeaux.mygarage.ui.theme.Gold
 import tech.fremeaux.mygarage.ui.theme.Green
@@ -71,6 +71,7 @@ fun CatalogScreen(){
     var makes by remember { mutableStateOf<List<Make>>(emptyList()) }
     var selectedMake: Make? by remember {mutableStateOf(null)}
 
+    val modelRepo = ModelRepository(LocalContext.current)
     var model by remember { mutableStateOf<List<Model>>(emptyList()) }
     var selectedModel: Model? by remember {mutableStateOf(null)}
 
@@ -81,9 +82,6 @@ fun CatalogScreen(){
     Column (Modifier.padding(20.dp,30.dp,20.dp,0.dp)){
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text("CATALOGUE", color = MaterialTheme.colorScheme.onBackground ,style = MaterialTheme.typography.displayLarge)
-            Button(onClick = {  }) {
-                Text("🔎")
-            }
         }
 
         when(currentCatalogue){
@@ -143,10 +141,6 @@ fun CatalogScreen(){
                                         model = "https://github.com/filippofilip95/car-logos-dataset/blob/master/logos/optimized/${item.name.lowercase().replace(" ","-")}.png?raw=true",
                                         contentDescription = item.name
                                     )
-                                    /*Text(
-                                        text = item.name,
-                                        style = MaterialTheme.typography.bodyLarge
-                                    )*/
                                 }
                             }
                         }
@@ -156,9 +150,9 @@ fun CatalogScreen(){
 
 
             CataloguePage.MODELS->{
-                loading=true
                 LaunchedEffect(Unit) {
-                    model = withContext(Dispatchers.IO) { parseModels(ApiService().get("https://carapi.app/api/models/v2?make=${selectedMake?.name}")) }
+                    loading = true
+                    model = withContext(Dispatchers.IO) { modelRepo.getModel(selectedMake) }
                     loading = false
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -230,8 +224,8 @@ fun CatalogScreen(){
 
 
             CataloguePage.CAR->{
-                loading=true
                 LaunchedEffect(Unit) {
+                    loading = true
                     car = withContext(Dispatchers.IO) { carRepo.parseCar(ApiService().get("https://carapi.app/api/engines/v2?limit=1&make=${selectedMake?.name}&model=${selectedModel?.name}")) }
                     loading = false
                 }
@@ -241,22 +235,19 @@ fun CatalogScreen(){
                 ) {
                     Text("← Retour", color = MaterialTheme.colorScheme.secondary)
                 }
-                /*Text(" Marque : ${selectedMake?.name}", color = MaterialTheme.colorScheme.tertiary)
-                Text(" Model : ${selectedModel?.name}", color = MaterialTheme.colorScheme.tertiary)*/
 
-                if (car== null && loading) {
+                if (loading) {
                     Box(Modifier.fillMaxSize(), Alignment.Center) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Text("Chargement...")
                             CircularProgressIndicator()
                         }
                     }
-                }
-                if(car==null){
+                }else if(car==null){
                     Box(Modifier.fillMaxSize(), Alignment.Center){
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Icon(Icons.Default.SignalWifiConnectedNoInternet4, "", Modifier.size(80.dp))
-                            Text("Pas de connexion....")
+                            Icon(Icons.Default.NoTransfer, "", Modifier.size(80.dp))
+                            Text("Pas de details du model")
                         }
                     }
                 }else {
@@ -390,18 +381,6 @@ fun CatalogScreen(){
 
                         }
                     }
-
-                    /*LazyVerticalGrid(
-                        columns = GridCells.Adaptive(minSize = 128.dp),
-                        contentPadding = PaddingValues(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-
-                        items(car) { item ->
-
-                        }
-                    }*/
                 }
             }
         }

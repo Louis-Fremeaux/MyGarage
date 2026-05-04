@@ -8,7 +8,6 @@ import org.json.JSONObject
 import tech.fremeaux.mygarage.data.CarTableName
 import tech.fremeaux.mygarage.data.DataBase
 import tech.fremeaux.mygarage.data.model.Car
-import tech.fremeaux.mygarage.data.model.Model
 
 class CarRepository(context: Context) {
     private val dbHelper = DataBase(context)
@@ -35,7 +34,7 @@ class CarRepository(context: Context) {
                     )
                 list.add(car)
             }
-            return list.first()
+            return list.firstOrNull()
         }else{
             return null
         }
