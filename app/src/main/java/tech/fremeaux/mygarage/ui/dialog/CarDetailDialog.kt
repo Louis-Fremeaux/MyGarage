@@ -79,11 +79,11 @@ fun CarDetailDialog (car: Car, onDismiss: () -> Unit){
                     Spacer(Modifier.height(30.dp))
 
                     Button(
-                        onClick = { /* Ta logique de modif */ },
+                        onClick = { /* TODO logique d'ajout km */ },
                         modifier = Modifier.fillMaxWidth().height(56.dp),
                         shape = RoundedCornerShape(16.dp)
                     ) {
-                        Text("MODIFIER LE VÉHICULE")
+                        Text("MODIFIER LE KILOMETRAGE")
                     }
                 }
             }

@@ -30,8 +30,9 @@ class CarRepository(context: Context) {
                     year = obj.getString("year"),
                     fuel= obj.getString("fuel_type"),
                     drive= obj.getString("drive_type"),
-                    transmission=obj.getString("transmission")
-                    )
+                    transmission=obj.getString("transmission"),
+                    km=0
+                )
                 list.add(car)
             }
             return list.firstOrNull()
@@ -40,7 +41,7 @@ class CarRepository(context: Context) {
         }
     }
 
-    fun addCar(make:String, model:String, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String) {
+    fun addCar(make:String, model:String, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String, km:Int) {
         val db = dbHelper.writableDatabase
 
         val values = ContentValues().apply {
@@ -53,6 +54,7 @@ class CarRepository(context: Context) {
             put("fuel", fuel)
             put("drive", drive)
             put("transmission", transmission)
+            put("km", km)
         }
 
         db.insert(CarTableName, null, values)
@@ -76,8 +78,9 @@ class CarRepository(context: Context) {
             val fuel = cursor.getString(cursor.getColumnIndexOrThrow("fuel"))
             val drive = cursor.getString(cursor.getColumnIndexOrThrow("drive"))
             val transmission = cursor.getString(cursor.getColumnIndexOrThrow("transmission"))
+            val km = cursor.getInt(cursor.getColumnIndexOrThrow("km"))
 
-            cars.add(Car(id, make, model, hp, nm, color, year, fuel, drive, transmission))
+            cars.add(Car(id, make, model, hp, nm, color, year, fuel, drive, transmission, km))
         }
 
         cursor.close()

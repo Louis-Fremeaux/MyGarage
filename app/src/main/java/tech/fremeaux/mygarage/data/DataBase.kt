@@ -11,7 +11,7 @@ const val ModelTableName = "model"
 class DataBase(context: Context) : SQLiteOpenHelper(context, "app.db", null, 17){
     override fun onCreate(db: SQLiteDatabase?)
     {
-        db?.execSQL("CREATE TABLE $CarTableName (id INTEGER PRIMARY KEY AUTOINCREMENT, make TEXT, model TEXT, hp INTEGER, nm INTEGER, color LONG, year TEXT, fuel TEXT, drive TEXT, transmission TEXT)")
+        db?.execSQL("CREATE TABLE $CarTableName (id INTEGER PRIMARY KEY AUTOINCREMENT, make TEXT, model TEXT, hp INTEGER, nm INTEGER, color LONG, year TEXT, fuel TEXT, drive TEXT, transmission TEXT, km INTEGER)")
         db?.execSQL("CREATE TABLE $MakeTableName (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)")
         db?.execSQL("CREATE TABLE $ModelTableName (id INTEGER PRIMARY KEY AUTOINCREMENT, makeId INTEGER, name TEXT)")
     }
