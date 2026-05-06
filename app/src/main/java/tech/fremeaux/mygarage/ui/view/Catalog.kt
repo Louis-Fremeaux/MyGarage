@@ -372,7 +372,8 @@ fun CatalogScreen(){
                         }
                     }
                     Row(Modifier.fillMaxWidth().padding(vertical = 15.dp), Arrangement.Center) {
-                        Button(onClick = { repo.addCar(car!!.make,car!!.model,car!!.hp,car!!.nm,color.random().value.toLong(),car!!.year,car!!.fuel,car!!.drive,car!!.transmission) },
+                        // !! pour eviter les erreur au possible object null
+                        Button(onClick = { repo.addCar(car!!.make,car!!.model,car!!.hp,car!!.nm,color.random().value.toLong(),car!!.year,car!!.fuel,car!!.drive,car!!.transmission,car!!.km) },
                             shape = RoundedCornerShape(14.dp),
                             contentPadding = PaddingValues(10.dp),
                             modifier = Modifier.shadow(10.dp, shape = RoundedCornerShape(10.dp), ambientColor = MaterialTheme.colorScheme.primary, spotColor = MaterialTheme.colorScheme.primary)
