@@ -61,6 +61,8 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.compose.runtime)
     testImplementation(libs.junit)
+    testImplementation(libs.mockito.core)
+    testImplementation(libs.json)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

@@ -41,7 +41,7 @@ class CarRepository(context: Context) {
         }
     }
 
-    fun addCar(make:String, model:String, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String, km:Int) {
+    fun addCar(make:String, model:String, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String, km:Int=0) {
         val db = dbHelper.writableDatabase
 
         val values = ContentValues().apply {

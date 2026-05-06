@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper
 const val CarTableName = "car"
 const val MakeTableName = "make"
 const val ModelTableName = "model"
-class DataBase(context: Context) : SQLiteOpenHelper(context, "app.db", null, 17){
+class DataBase(context: Context) : SQLiteOpenHelper(context, "app.db", null, 18){
     override fun onCreate(db: SQLiteDatabase?)
     {
         db?.execSQL("CREATE TABLE $CarTableName (id INTEGER PRIMARY KEY AUTOINCREMENT, make TEXT, model TEXT, hp INTEGER, nm INTEGER, color LONG, year TEXT, fuel TEXT, drive TEXT, transmission TEXT, km INTEGER)")
