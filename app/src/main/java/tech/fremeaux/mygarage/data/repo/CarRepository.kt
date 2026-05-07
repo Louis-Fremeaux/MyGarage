@@ -23,7 +23,9 @@ class CarRepository(context: Context) {
                 val car = Car(
                     id = obj.getInt("id"),
                     make = obj.getString("make"),
+                    makeId = 0,
                     model = obj.getString("model"),
+                    modelId = 0,
                     hp = obj.getInt("horsepower_hp"),
                     nm= obj.getInt("torque_ft_lbs"),
                     color = Color(255,255,255).toColorLong(),
@@ -41,12 +43,14 @@ class CarRepository(context: Context) {
         }
     }
 
-    fun addCar(make:String, model:String, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String, km:Int=0) {
+    fun addCar(make:String, makeId:Int, model:String, modelId:Int, hp:Int, nm:Int, color:Long, year:String, fuel:String, drive:String, transmission:String, km:Int=0) {
         val db = dbHelper.writableDatabase
 
         val values = ContentValues().apply {
             put("make", make)
+            put("makeId", makeId)
             put("model", model)
+            put("modelId", modelId)
             put("hp", hp)
             put("nm", nm)
             put("color", color)
@@ -70,7 +74,9 @@ class CarRepository(context: Context) {
         while (cursor.moveToNext()) {
             val id = cursor.getInt(cursor.getColumnIndexOrThrow("id"))
             val make = cursor.getString(cursor.getColumnIndexOrThrow("make"))
+            val makeId = cursor.getInt(cursor.getColumnIndexOrThrow("makeId"))
             val model = cursor.getString(cursor.getColumnIndexOrThrow("model"))
+            val modelId = cursor.getInt(cursor.getColumnIndexOrThrow("modelId"))
             val hp = cursor.getInt(cursor.getColumnIndexOrThrow("hp"))
             val nm = cursor.getInt(cursor.getColumnIndexOrThrow("nm"))
             val color = cursor.getLong(cursor.getColumnIndexOrThrow("color"))
@@ -80,26 +86,13 @@ class CarRepository(context: Context) {
             val transmission = cursor.getString(cursor.getColumnIndexOrThrow("transmission"))
             val km = cursor.getInt(cursor.getColumnIndexOrThrow("km"))
 
-            cars.add(Car(id, make, model, hp, nm, color, year, fuel, drive, transmission, km))
+            cars.add(Car(id, make, makeId, model, modelId, hp, nm, color, year, fuel, drive, transmission, km))
         }
 
         cursor.close()
         db.close()
 
         return cars
-    }
-
-    fun updateCar(id:Int, make:String, model:String, hp:Int, color:Long){
-        val db = dbHelper.readableDatabase
-        val values = ContentValues().apply {
-            put("make", make)
-            put("model", model)
-            put("hp", hp)
-            put("color", color)
-        }
-
-        db.update(CarTableName, values, "id = ?", arrayOf(id.toString()))
-        db.close()
     }
 
     fun deleteCar(id: Int) {
