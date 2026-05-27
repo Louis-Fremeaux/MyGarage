@@ -16,7 +16,7 @@ class DatabaseIntegrationTest {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val repo = CarRepository(context)
 
-        repo.addCar("TestMake", "TestModel", 500, 400, 0L, "2024", "Electric", "AWD", "Auto")
+        repo.addCar("TestMake",1, "TestModel", 1, 500, 400, 0L, "2024", "Electric", "AWD", "Auto")
 
         val garage = repo.getCars()
 
